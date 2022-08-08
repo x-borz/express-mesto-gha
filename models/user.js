@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  cohort: {
+    type: String,
+    required: true,
+    maxlength: 10,
+    default: 'cohort-42',
+  },
 });
 
 module.exports = mongoose.model('user', userSchema);
