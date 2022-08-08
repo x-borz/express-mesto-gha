@@ -4,35 +4,35 @@ const { NOT_FOUND_CODE, BAD_REQUEST_CODE, DEFAULT_ERROR_CODE } = require('../uti
 const getAllCards = (req, res) => {
   Card.find({})
     .populate(['owner', 'likes'])
-    .then(cards => res.send(cards))
+    .then((cards) => res.send(cards))
     .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
-}
+};
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then(card => card.populate('owner'))
-    .then(card => res.send(card))
-    .catch(err => {
+    .then((card) => card.populate('owner'))
+    .then((card) => res.send(card))
+    .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
-}
+};
 
 const deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.userId)
-    .then(card => {
+    .then((card) => {
       if (card) {
-        res.send({message: 'Карточка удалена'})
+        res.send({ message: 'Карточка удалена' });
       } else {
-        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена'});
+        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
       }
     })
     .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
-}
+};
 
 const addLike = (req, res) => {
   Card.findByIdAndUpdate(
@@ -41,15 +41,15 @@ const addLike = (req, res) => {
     { new: true },
   )
     .populate(['owner', 'likes'])
-    .then(card => {
+    .then((card) => {
       if (card) {
         res.send(card);
       } else {
-        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена'});
+        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
       }
     })
     .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
-}
+};
 
 const removeLike = (req, res) => {
   Card.findByIdAndUpdate(
@@ -58,20 +58,20 @@ const removeLike = (req, res) => {
     { new: true },
   )
     .populate(['owner', 'likes'])
-    .then(card => {
+    .then((card) => {
       if (card) {
         res.send(card);
       } else {
-        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена'});
+        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
       }
     })
     .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
-}
+};
 
 module.exports = {
   getAllCards,
   createCard,
   deleteCard,
   addLike,
-  removeLike
-}
+  removeLike,
+};
