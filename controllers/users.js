@@ -16,7 +16,13 @@ const getUserById = (req, res) => {
         res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
       }
     })
-    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_CODE).send({ message: 'Параметр запроса невалиден' });
+        return;
+      }
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const createUser = (req, res) => {
@@ -34,7 +40,7 @@ const createUser = (req, res) => {
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (user) {
         res.send(user);
@@ -53,8 +59,8 @@ const updateUser = (req, res) => {
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    . then((user) => {
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .then((user) => {
       if (user) {
         res.send(user);
       } else {
