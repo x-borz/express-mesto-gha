@@ -8,7 +8,6 @@ const getAllUsers = (req, res) => {
 }
 
 const getUserById = (req, res) => {
-  console.log(req.params);
   User.findById(req.params.userId)
     .then(user => {
       if (user) {
