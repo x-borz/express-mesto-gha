@@ -48,7 +48,13 @@ const addLike = (req, res) => {
         res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
       }
     })
-    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_CODE).send({ message: 'Параметр запроса невалиден' });
+        return;
+      }
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const removeLike = (req, res) => {
@@ -65,13 +71,15 @@ const removeLike = (req, res) => {
         res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
       }
     })
-    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_CODE).send({ message: 'Параметр запроса невалиден' });
+        return;
+      }
+      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports = {
-  getAllCards,
-  createCard,
-  deleteCard,
-  addLike,
-  removeLike,
+  getAllCards, createCard, deleteCard, addLike, removeLike,
 };
