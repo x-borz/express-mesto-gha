@@ -34,7 +34,7 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
+        res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -57,7 +57,7 @@ const addLike = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
+        res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -80,7 +80,7 @@ const removeLike = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
+        res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
