@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const { NOT_FOUND_CODE, BAD_REQUEST_CODE, DEFAULT_ERROR_CODE } = require('../utils/constants');
+const { getValidationMessage } = require('../utils/utils');
 
 const getAllUsers = (req, res) => {
   User.find({})
@@ -31,7 +32,7 @@ const createUser = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
+        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -50,7 +51,7 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
+        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -69,7 +70,7 @@ const updateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
+        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });

@@ -1,5 +1,6 @@
 const Card = require('../models/card');
 const { NOT_FOUND_CODE, BAD_REQUEST_CODE, DEFAULT_ERROR_CODE } = require('../utils/constants');
+const { getValidationMessage } = require('../utils/utils');
 
 const getAllCards = (req, res) => {
   Card.find({})
@@ -15,7 +16,7 @@ const createCard = (req, res) => {
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
+        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -33,7 +34,7 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Параметр запроса невалиден' });
+        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -56,7 +57,7 @@ const addLike = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Параметр запроса невалиден' });
+        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
@@ -79,7 +80,7 @@ const removeLike = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Параметр запроса невалиден' });
+        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
