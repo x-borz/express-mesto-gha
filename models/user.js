@@ -16,19 +16,19 @@ const userSchema = new mongoose.Schema(
     },
     name: {
       type: String,
-      required: 'не заполнено обязательное поле {PATH}',
       minlength: [2, 'длина поля {PATH} должна быть не менее 2 символов'],
       maxlength: [30, 'длина поля {PATH} должна быть не более 30 символов'],
+      default: 'Жак-Ив Кусто',
     },
     about: {
       type: String,
-      required: 'не заполнено обязательное поле {PATH}',
       minlength: [2, 'длина поля {PATH} должно быть не менее 2 символов'],
       maxlength: [30, 'длина поля {PATH} должна быть не более 30 символов'],
+      default: 'Исследователь',
     },
     avatar: {
       type: String,
-      required: 'не заполнено обязательное поле {PATH}',
+      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     },
   },
   {

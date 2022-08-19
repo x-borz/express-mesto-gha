@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { NOT_FOUND_CODE, BAD_REQUEST_CODE, DEFAULT_ERROR_CODE } = require('../utils/constants');
 const { getValidationMessage } = require('../utils/utils');
@@ -31,15 +32,22 @@ const createUser = (req, res) => {
     email, password, name, about, avatar,
   } = req.body;
 
-  User.create({
-    email, password, name, about, avatar,
-  })
-    .then((user) => res.send(user))
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email, password: hash, name, about, avatar,
+    }))
+    .then((user) => res.send({
+      email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
+      // todo: неуникальный email - обработка ошибки
       res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
