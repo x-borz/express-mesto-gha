@@ -1,22 +1,34 @@
 const mongoose = require('mongoose');
+const { isEmail } = require('validator');
 
 const userSchema = new mongoose.Schema(
   {
+    email: {
+      type: String,
+      required: 'не заполнено обязательное поле {PATH}',
+      unique: true,
+      validate: [isEmail, 'в поле {PATH} указан невалидный адрес электронной почты'],
+    },
+    password: {
+      type: String,
+      required: 'не заполнено обязательное поле {PATH}',
+      minlength: [8, 'длина поля {PATH} должна быть не менее 8 символов'],
+    },
     name: {
       type: String,
-      required: [true, 'не заполнено обязательное поле "Имя"'],
-      minlength: [2, 'длина поля "Имя" должно быть не менее {VALUE} символов'],
-      maxlength: [30, 'длина поля "Имя" должна быть не более {VALUE} символов'],
+      required: 'не заполнено обязательное поле {PATH}',
+      minlength: [2, 'длина поля {PATH} должна быть не менее 2 символов'],
+      maxlength: [30, 'длина поля {PATH} должна быть не более 30 символов'],
     },
     about: {
       type: String,
-      required: [true, 'не заполнено обязательное поле "О Себе"'],
-      minlength: [2, 'длина поля "О себе" должно быть не менее {VALUE} символов'],
-      maxlength: [30, 'длина поля "О себе" должна быть не более {VALUE} символов'],
+      required: 'не заполнено обязательное поле {PATH}',
+      minlength: [2, 'длина поля {PATH} должно быть не менее 2 символов'],
+      maxlength: [30, 'длина поля {PATH} должна быть не более 30 символов'],
     },
     avatar: {
       type: String,
-      required: [true, 'не заполнено обязательное поле "Аватар"'],
+      required: 'не заполнено обязательное поле {PATH}',
     },
   },
   {

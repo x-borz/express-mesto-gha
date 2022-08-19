@@ -4,18 +4,18 @@ const cardSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'не заполнено обязательное поле "Имя"'],
-      minlength: [2, 'длина поля "Имя" должно быть не менее {VALUE} символов'],
-      maxlength: [30, 'длина поля "Имя" должна быть не более {VALUE} символов'],
+      required: [true, 'не заполнено обязательное поле {PATH}'],
+      minlength: [2, 'длина поля {PATH} должна быть не менее 2 символов'],
+      maxlength: [30, 'длина поля {PATH} должна быть не более 8 символов'],
     },
     link: {
       type: String,
-      required: [true, 'не заполнено обязательное поле "Ссылка"'],
+      required: [true, 'не заполнено обязательное поле {PATH}'],
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
-      required: [true, 'не заполнено обязательное поле "Автор"'],
+      required: [true, 'не заполнено обязательное поле {PATH}'],
     },
     likes: {
       type: [mongoose.Schema.Types.ObjectId],
