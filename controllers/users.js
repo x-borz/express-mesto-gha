@@ -3,8 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { NOT_FOUND_CODE, BAD_REQUEST_CODE, DEFAULT_ERROR_CODE } = require('../utils/constants');
 const { getValidationMessage } = require('../utils/utils');
-
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { JWT_SECRET } = require('../utils/constants');
 
 const getAllUsers = (req, res) => {
   User.find({})
@@ -100,7 +99,7 @@ const login = (req, res) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        JWT_SECRET,
         { expiresIn: '7d' },
       );
 
