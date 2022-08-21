@@ -6,10 +6,12 @@ const {
   BAD_REQUEST_CODE,
   DEFAULT_ERROR_CODE,
   CAST_ERROR,
-  VALIDATION_ERROR,
+  VALIDATION_ERROR, MONGO_SERVER_ERROR,
 } = require('../utils/constants');
 const { getValidationMessage } = require('../utils/utils');
 const { JWT_SECRET } = require('../utils/constants');
+const BadRequestError = require('../errors/bad-request-error');
+const ConflictError = require('../errors/conflict-error');
 
 const getAllUsers = (req, res) => {
   User.find({})
@@ -27,15 +29,14 @@ const getUserById = (req, res) => {
       }
     })
     .catch((err) => {
+      let error = '';
       if (err.name === CAST_ERROR) {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Параметр запроса невалиден' });
-        return;
+        error = new BadRequestError('Идентификатор пользователя в параметрах запроса невалиден');
       }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
@@ -46,12 +47,13 @@ const createUser = (req, res) => {
     }))
     .then((user) => res.send(user))
     .catch((err) => {
+      let error;
       if (err.name === VALIDATION_ERROR) {
-        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
-        return;
+        error = new BadRequestError(`Данные в запросе невалидны: ${getValidationMessage(err)}`);
+      } else if (err.name === MONGO_SERVER_ERROR && err.code === 11000) {
+        error = new ConflictError('На сайте уже зарегистрирован пользователь с указанным в запросе email');
       }
-      // todo: неуникальный email - обработка ошибки
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
+      next(error);
     });
 };
 
@@ -93,7 +95,7 @@ const updateAvatar = (req, res) => {
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -111,7 +113,7 @@ const login = (req, res) => {
         })
         .end();
     })
-    .catch((err) => res.status(401).send({ message: err.message }));
+    .catch((err) => next(err));
 };
 
 const getUser = (req, res) => {

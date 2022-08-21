@@ -11,6 +11,7 @@ const CAST_ERROR = 'CastError';
 const VALIDATION_ERROR = 'ValidationError';
 const NO_RIGHTS_TO_REMOVE_ERROR = 'NowRightsToRemoveError';
 const NOT_FOUND_ERROR = 'NotFoundError';
+const MONGO_SERVER_ERROR = 'MongoServerError';
 
 const JWT_SECRET = NODE_ENV === 'production' ? jwt : 'dev-secret';
 
@@ -26,4 +27,5 @@ module.exports = {
   NO_RIGHTS_TO_REMOVE_ERROR,
   NOT_FOUND_ERROR,
   VALIDATION_ERROR,
+  MONGO_SERVER_ERROR
 };
