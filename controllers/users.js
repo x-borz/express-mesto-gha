@@ -41,7 +41,13 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       email, password: hash, name, about, avatar,
     }))
-    .then((user) => res.send(user))
+    .then((user) => res.send({
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+    }))
     .catch((err) => {
       if (err.name === VALIDATION_ERROR) {
         next(new BadRequestError(`Данные в запросе невалидны: ${getValidationMessage(err)}`));
