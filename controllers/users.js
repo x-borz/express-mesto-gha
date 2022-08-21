@@ -113,6 +113,19 @@ const login = (req, res) => {
     .catch((err) => res.status(401).send({ message: err.message }));
 };
 
+const getUser = (req, res) => {
+  const { _id } = req.user;
+
+  return User.findById(_id)
+    .then((user) => res.send({
+      email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+    }))
+    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
+};
+
 module.exports = {
-  getAllUsers, getUserById, createUser, updateUser, updateAvatar, login,
+  getAllUsers, getUserById, createUser, updateUser, updateAvatar, login, getUser,
 };
