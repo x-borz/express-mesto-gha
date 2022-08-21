@@ -1,37 +1,33 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const {
-  NOT_FOUND_CODE,
-  BAD_REQUEST_CODE,
-  DEFAULT_ERROR_CODE,
-  CAST_ERROR,
-  VALIDATION_ERROR, MONGO_SERVER_ERROR,
-} = require('../utils/constants');
+const { CAST_ERROR, VALIDATION_ERROR, MONGO_SERVER_ERROR } = require('../utils/constants');
 const { getValidationMessage } = require('../utils/utils');
 const { JWT_SECRET } = require('../utils/constants');
 const BadRequestError = require('../errors/bad-request-error');
 const ConflictError = require('../errors/conflict-error');
+const NotFoundError = require('../errors/not-found-error');
 
-const getAllUsers = (req, res) => {
+const getAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
     })
     .catch((err) => {
-      let error = '';
       if (err.name === CAST_ERROR) {
-        error = new BadRequestError('Идентификатор пользователя в параметрах запроса невалиден');
+        next(new BadRequestError('Идентификатор пользователя в параметрах запроса невалиден'));
+      } else {
+        next(err);
       }
     });
 };
@@ -47,51 +43,51 @@ const createUser = (req, res, next) => {
     }))
     .then((user) => res.send(user))
     .catch((err) => {
-      let error;
       if (err.name === VALIDATION_ERROR) {
-        error = new BadRequestError(`Данные в запросе невалидны: ${getValidationMessage(err)}`);
+        next(new BadRequestError(`Данные в запросе невалидны: ${getValidationMessage(err)}`));
       } else if (err.name === MONGO_SERVER_ERROR && err.code === 11000) {
-        error = new ConflictError('На сайте уже зарегистрирован пользователь с указанным в запросе email');
+        next(new ConflictError('На сайте уже зарегистрирован пользователь с указанным в запросе email'));
+      } else {
+        next(err);
       }
-      next(error);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
     })
     .catch((err) => {
       if (err.name === VALIDATION_ERROR) {
-        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
-        return;
+        next(new BadRequestError(`Данные в запросе невалидны: ${getValidationMessage(err)}`));
+      } else {
+        next(err);
       }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (user) {
         res.send(user);
       } else {
-        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
     })
     .catch((err) => {
       if (err.name === VALIDATION_ERROR) {
-        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
-        return;
+        next(new BadRequestError(`Данные в запросе невалидны: ${getValidationMessage(err)}`));
+      } else {
+        next(err);
       }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -116,12 +112,12 @@ const login = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const { _id } = req.user;
 
   return User.findById(_id)
     .then((user) => res.send(user))
-    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
+    .catch(next);
 };
 
 module.exports = {

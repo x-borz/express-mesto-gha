@@ -1,38 +1,32 @@
 const Card = require('../models/card');
-const {
-  NOT_FOUND_CODE,
-  BAD_REQUEST_CODE,
-  DEFAULT_ERROR_CODE,
-  FORBIDDEN_CODE,
-  NO_RIGHTS_TO_REMOVE_ERROR,
-  NOT_FOUND_ERROR,
-  CAST_ERROR,
-  VALIDATION_ERROR,
-} = require('../utils/constants');
+const { CAST_ERROR, VALIDATION_ERROR } = require('../utils/constants');
 const { getValidationMessage } = require('../utils/utils');
+const BadRequestError = require('../errors/bad-request-error');
+const NoRightsError = require('../errors/no-rights-error');
+const NotFoundError = require('../errors/not-found-error');
 
-const getAllCards = (req, res) => {
+const getAllCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.send(cards))
-    .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
+    .catch(next());
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => card.populate('owner'))
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === VALIDATION_ERROR) {
-        res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
-        return;
+        next(new BadRequestError(`Данные в запросе невалидны: ${getValidationMessage(err)}`));
+      } else {
+        next(err);
       }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { _id: myId } = req.user;
 
   Card.findById(req.params.cardId)
@@ -43,35 +37,23 @@ const deleteCard = (req, res) => {
           return card;
         }
 
-        const err = new Error('Можно удалять лишь свои карточки');
-        err.name = NO_RIGHTS_TO_REMOVE_ERROR;
-        return Promise.reject(err);
+        throw new NoRightsError('Можно удалять лишь свои карточки');
       }
 
-      const err = new Error('Запрашиваемая карточка не найдена');
-      err.name = NOT_FOUND_ERROR;
-      return Promise.reject(err);
+      throw new NotFoundError('Запрашиваемая карточка не найдена');
     })
     .then((card) => Card.deleteOne({ _id: card._id }))
     .then(() => res.send({ message: 'Карточка удалена' }))
     .catch((err) => {
       if (err.name === CAST_ERROR) {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Идентификатор удаляемой карточки в параметрах запроса невалиден' });
-        return;
+        next(new BadRequestError('Идентификатор запрашиваемой карточки в параметрах запроса невалиден'));
+      } else {
+        next(err);
       }
-      if (err.name === NO_RIGHTS_TO_REMOVE_ERROR) {
-        res.status(FORBIDDEN_CODE).send({ message: err.message });
-        return;
-      }
-      if (err.name === NOT_FOUND_ERROR) {
-        res.status(NOT_FOUND_CODE).send({ message: err.message });
-        return;
-      }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
-const addLike = (req, res) => {
+const addLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -82,19 +64,19 @@ const addLike = (req, res) => {
       if (card) {
         res.send(card);
       } else {
-        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
+        throw new NotFoundError('Запрашиваемая карточка не найдена');
       }
     })
     .catch((err) => {
       if (err.name === CAST_ERROR) {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
-        return;
+        next(new BadRequestError('Идентификатор запрашиваемой карточки в параметрах запроса невалиден'));
+      } else {
+        next(err);
       }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
-const removeLike = (req, res) => {
+const removeLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -105,15 +87,15 @@ const removeLike = (req, res) => {
       if (card) {
         res.send(card);
       } else {
-        res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемая карточка не найдена' });
+        throw new NotFoundError('Запрашиваемая карточка не найдена');
       }
     })
     .catch((err) => {
       if (err.name === CAST_ERROR) {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Данные в запросе невалидны' });
-        return;
+        next(new BadRequestError('Идентификатор запрашиваемой карточки в параметрах запроса невалиден'));
+      } else {
+        next(err);
       }
-      res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' });
     });
 };
 
