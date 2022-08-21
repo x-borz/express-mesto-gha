@@ -5,7 +5,7 @@ const {
 
 cardRouter.get('/', getAllCards);
 cardRouter.post('/', createCard);
-cardRouter.delete('/:userId', deleteCard);
+cardRouter.delete('/:cardId', deleteCard);
 cardRouter.put('/:cardId/likes', addLike);
 cardRouter.delete('/:cardId/likes', removeLike);
 

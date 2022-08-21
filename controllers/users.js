@@ -1,7 +1,13 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { NOT_FOUND_CODE, BAD_REQUEST_CODE, DEFAULT_ERROR_CODE } = require('../utils/constants');
+const {
+  NOT_FOUND_CODE,
+  BAD_REQUEST_CODE,
+  DEFAULT_ERROR_CODE,
+  CAST_ERROR,
+  VALIDATION_ERROR,
+} = require('../utils/constants');
 const { getValidationMessage } = require('../utils/utils');
 const { JWT_SECRET } = require('../utils/constants');
 
@@ -21,7 +27,7 @@ const getUserById = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === CAST_ERROR) {
         res.status(BAD_REQUEST_CODE).send({ message: 'Параметр запроса невалиден' });
         return;
       }
@@ -38,14 +44,9 @@ const createUser = (req, res) => {
     .then((hash) => User.create({
       email, password: hash, name, about, avatar,
     }))
-    .then((user) => res.send({
-      email: user.email,
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-    }))
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === VALIDATION_ERROR) {
         res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
@@ -65,7 +66,7 @@ const updateUser = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === VALIDATION_ERROR) {
         res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
@@ -84,7 +85,7 @@ const updateAvatar = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === VALIDATION_ERROR) {
         res.status(BAD_REQUEST_CODE).send({ message: `Данные в запросе невалидны: ${getValidationMessage(err)}` });
         return;
       }
@@ -117,12 +118,7 @@ const getUser = (req, res) => {
   const { _id } = req.user;
 
   return User.findById(_id)
-    .then((user) => res.send({
-      email: user.email,
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-    }))
+    .then((user) => res.send(user))
     .catch(() => res.status(DEFAULT_ERROR_CODE).send({ message: 'Произошла ошибка' }));
 };
 

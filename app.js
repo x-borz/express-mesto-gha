@@ -5,10 +5,7 @@ const cookieParser = require('cookie-parser');
 const { sendNotFoundResponse } = require('./controllers/404');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-
-require('dotenv').config();
-
-const { PORT = 3000 } = process.env;
+const { PORT } = require('./utils/constants');
 
 const app = express();
 
