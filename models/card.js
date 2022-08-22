@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { isLinkValid } = require('../utils/utils');
 
 const cardSchema = new mongoose.Schema(
   {
@@ -11,6 +12,7 @@ const cardSchema = new mongoose.Schema(
     link: {
       type: String,
       required: [true, 'не заполнено обязательное поле {PATH}'],
+      validate: [isLinkValid, 'в поле {PATH} указана невалидная ссылка на изображение'],
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
