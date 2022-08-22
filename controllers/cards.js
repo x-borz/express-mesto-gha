@@ -9,7 +9,7 @@ const getAllCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.send(cards))
-    .catch(next());
+    .catch(next);
 };
 
 const createCard = (req, res, next) => {
