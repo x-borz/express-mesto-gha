@@ -1,3 +1,5 @@
-const { NOT_FOUND_CODE } = require('../utils/constants');
+const NotFoundError = require('../errors/not-found-error');
 
-module.exports.sendNotFoundResponse = (req, res) => res.status(NOT_FOUND_CODE).send({ message: 'Запрашиваемый ресурс не существет' });
+module.exports.sendNotFoundResponse = (req, res, next) => {
+  next(new NotFoundError('Запрашиваемый ресурс не существует'));
+};
