@@ -17,10 +17,18 @@ userRouter.patch('/me', celebrate({
 
 userRouter.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().uri({
+      scheme: ['http', 'https'],
+      allowRelative: false,
+      relativeOnly: false,
+    }),
   }),
 }), updateAvatar);
 
-userRouter.get('/:userId', getUserById);
+userRouter.get('/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().length(24),
+  }),
+}), getUserById);
 
 module.exports = userRouter;
