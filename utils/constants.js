@@ -9,6 +9,8 @@ const MONGO_SERVER_ERROR = 'MongoServerError';
 
 const JWT_SECRET = NODE_ENV === 'production' ? jwt : 'dev-secret';
 
+const LINK_PATTERN = /^https?:\/\/(w{3}\.)?[a-z\d-]+\.[a-z]{2,3}[a-z\d\-._~:?#@!$&'()*+,;=[\]/]+#?$/;
+
 module.exports = {
   NODE_ENV,
   JWT_SECRET,
@@ -17,4 +19,5 @@ module.exports = {
   NOT_FOUND_ERROR,
   VALIDATION_ERROR,
   MONGO_SERVER_ERROR,
+  LINK_PATTERN,
 };

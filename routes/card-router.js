@@ -3,6 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const {
   getAllCards, createCard, deleteCard, addLike, removeLike,
 } = require('../controllers/cards');
+const { LINK_PATTERN } = require('../utils/constants');
 
 const cardIdRule = celebrate({
   params: Joi.object().keys({
@@ -15,11 +16,7 @@ cardRouter.get('/', getAllCards);
 cardRouter.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(8),
-    link: Joi.string().required().uri({
-      scheme: ['http', 'https'],
-      allowRelative: false,
-      relativeOnly: false,
-    }),
+    link: Joi.string().required().pattern(LINK_PATTERN),
   }),
 }), createCard);
 

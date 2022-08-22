@@ -3,6 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const {
   getAllUsers, getUserById, updateUser, updateAvatar, getUser,
 } = require('../controllers/users');
+const { LINK_PATTERN } = require('../utils/constants');
 
 userRouter.get('/', getAllUsers);
 
@@ -17,11 +18,7 @@ userRouter.patch('/me', celebrate({
 
 userRouter.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().uri({
-      scheme: ['http', 'https'],
-      allowRelative: false,
-      relativeOnly: false,
-    }),
+    avatar: Joi.string().required().pattern(LINK_PATTERN),
   }),
 }), updateAvatar);
 

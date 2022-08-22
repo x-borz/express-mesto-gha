@@ -6,7 +6,8 @@ const { celebrate, Joi, errors } = require('celebrate');
 const { sendNotFoundResponse } = require('./controllers/404');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const { PORT } = require('./utils/constants');
+const errorHandler = require('./middlewares/error-handler');
+const { PORT, LINK_PATTERN } = require('./utils/constants');
 
 const app = express();
 
@@ -28,11 +29,7 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri({
-      scheme: ['http', 'https'],
-      allowRelative: false,
-      relativeOnly: false,
-    }),
+    avatar: Joi.string().required().pattern(LINK_PATTERN),
   }),
 }), createUser);
 
@@ -46,12 +43,6 @@ app.use('*', sendNotFoundResponse);
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res
-    .status(statusCode)
-    .send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
-  next();
-});
+app.use(errorHandler);
 
 app.listen(PORT);
