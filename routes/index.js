@@ -8,10 +8,13 @@ const auth = require('../middlewares/auth');
 const { sendNotFoundResponse } = require('../controllers/404');
 const errorHandler = require('../middlewares/error-handler');
 const { validSigninRequest, validSignupRequest } = require('../validators/user');
+const { requestLogger, errorLogger } = require('../middlewares/logger');
 
 router.use(helmet());
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+
+router.use(requestLogger);
 
 router.post('/signin', validSigninRequest, login);
 router.post('/signup', validSignupRequest, createUser);
@@ -24,6 +27,8 @@ router.use('/users', require('./user-router'));
 router.use('/cards', require('./card-router'));
 
 router.use('*', sendNotFoundResponse);
+
+router.use(errorLogger);
 
 router.use(errors());
 
